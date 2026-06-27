@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ma Boutique</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #ffffff;
+      padding: 16px;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { background: #16213e; border-radius: 12px; padding: 16px; }
+    .card h3 { font-size: 0.95rem; margin-bottom: 4px; }
+    .card p { font-size: 0.8rem; opacity: 0.6; margin-bottom: 8px; }
+    .price { font-weight: bold; color: #6c63ff; }
+    .btn-add {
+      width: 100%; padding: 8px;
+      background: #6c63ff; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 0.85rem; cursor: pointer; margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Notre boutique</h1>
+  <div class="grid" id="products"></div>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    const products = [
+      { id: 1, name: "Produit A", desc: "Description", price: "9.99€", emoji: "🎵" },
+      { id: 2, name: "Produit B", desc: "Description", price: "14.99€", emoji: "🎤" },
+      { id: 3, name: "Produit C", desc: "Description", price: "4.99€", emoji: "🎧" },
+      { id: 4, name: "Produit D", desc: "Description", price: "19.99€", emoji: "🎼" },
+    ];
+    document.getElementById("products").innerHTML = products.map(p => `
+      <div class="card">
+        <div style="font-size:3rem;text-align:center;padding:20px 0">${p.emoji}</div>
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div class="price">${p.price}</div>
+        <button class="btn-add">+ Ajouter</button>
+      </div>
+    `).join("");
+  </script>
+</body>
+</html>
