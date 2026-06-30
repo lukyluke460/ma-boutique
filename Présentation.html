@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BarryShop — Présentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0c0b09;--noir2:#13110e;--card:#16130f;--line:#2a2520;
+  --ivoire:#f4f1ea;--gris:#8a8178;--or:#c9a86a;--or2:#e3c896;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--noir);color:var(--ivoire);font-family:'Manrope',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.serif{font-family:'Fraunces',serif;font-weight:300;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* HERO */
+.hero{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,106,.06),transparent 70%);pointer-events:none;}
+.eyebrow{font-size:.62rem;letter-spacing:.45em;text-transform:uppercase;color:var(--or);opacity:.75;margin-bottom:28px;font-weight:500;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(3rem,14vw,5.5rem);font-weight:300;line-height:.92;letter-spacing:-.02em;margin-bottom:24px;}
+.hero h1 em{font-style:italic;color:var(--or);font-weight:400;}
+.hero-line{width:36px;height:1px;background:var(--or);opacity:.6;margin:8px auto 28px;}
+.hero p{font-size:1rem;line-height:1.8;color:var(--gris);font-weight:300;max-width:440px;margin-bottom:44px;}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.btn-primary{background:var(--or);color:var(--noir);padding:15px 32px;border-radius:3px;text-decoration:none;font-weight:600;font-size:.9rem;letter-spacing:.02em;transition:all .3s;}
+.btn-primary:hover{background:var(--or2);transform:translateY(-2px);}
+.btn-ghost{background:transparent;color:var(--ivoire);padding:15px 32px;border-radius:3px;text-decoration:none;font-weight:500;font-size:.9rem;border:1px solid var(--line);transition:all .3s;}
+.btn-ghost:hover{border-color:var(--or);}
+
+/* SECTION */
+.section{max-width:1100px;margin:0 auto;padding:90px 24px;}
+.sec-eyebrow{font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;color:var(--or);opacity:.7;margin-bottom:18px;font-weight:500;text-align:center;}
+.sec-title{font-family:'Fraunces',serif;font-size:clamp(2rem,6vw,3rem);font-weight:300;text-align:center;line-height:1.05;margin-bottom:16px;letter-spacing:-.01em;}
+.sec-title em{font-style:italic;color:var(--or);}
+.sec-sub{text-align:center;color:var(--gris);font-weight:300;font-size:.95rem;line-height:1.7;max-width:480px;margin:0 auto 60px;}
+
+/* FEATURE GRID */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.feat{background:var(--noir);padding:38px 30px;transition:background .4s;}
+.feat:hover{background:var(--card);}
+.feat-num{font-family:'Fraunces',serif;font-style:italic;font-size:1.1rem;color:var(--or);opacity:.6;margin-bottom:18px;}
+.feat-icon{font-size:1.6rem;margin-bottom:16px;display:block;}
+.feat h3{font-size:1.05rem;font-weight:600;margin-bottom:10px;letter-spacing:.01em;}
+.feat p{font-size:.85rem;line-height:1.7;color:var(--gris);font-weight:300;}
+
+/* SHOWCASE / phone mockups */
+.showcase{background:var(--noir2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:90px 24px;overflow:hidden;}
+.phones{display:flex;gap:24px;justify-content:center;align-items:center;flex-wrap:wrap;max-width:1100px;margin:50px auto 0;}
+.phone{width:240px;height:500px;background:var(--noir);border:8px solid #1c1814;border-radius:36px;padding:14px;flex-shrink:0;box-shadow:0 30px 80px rgba(0,0,0,.6);position:relative;}
+.phone-notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#1c1814;border-radius:0 0 14px 14px;z-index:5;}
+.phone-screen{width:100%;height:100%;background:var(--noir);border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+
+/* Mock screen 1: catalogue */
+.mk-hd{padding:30px 16px 14px;}
+.mk-eyebrow{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:var(--or);opacity:.7;margin-bottom:8px;}
+.mk-title{font-family:'Fraunces',serif;font-style:italic;font-size:1.5rem;font-weight:300;}
+.mk-pills{display:flex;gap:6px;padding:0 16px 12px;overflow:hidden;}
+.mk-pill{font-size:.55rem;padding:5px 11px;border:1px solid var(--line);border-radius:2px;color:var(--gris);white-space:nowrap;}
+.mk-pill.on{background:var(--or);color:var(--noir);border-color:var(--or);}
+.mk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px;}
+.mk-card{background:var(--card);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+.mk-card-img{height:62px;background:linear-gradient(135deg,#1a1714,#221c16);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.mk-card-b{padding:8px;}
+.mk-card-n{font-size:.6rem;font-weight:600;margin-bottom:3px;}
+.mk-card-p{font-size:.58rem;color:var(--or);font-weight:600;}
+
+/* Mock screen 2: compte */
+.mk-acc{padding:30px 16px;text-align:center;}
+.mk-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.3rem;color:var(--noir);}
+.mk-acc-n{font-family:'Fraunces',serif;font-style:italic;font-size:1rem;margin-bottom:3px;}
+.mk-acc-s{font-size:.55rem;color:var(--gris);margin-bottom:18px;}
+.mk-pts-card{background:linear-gradient(135deg,rgba(201,168,106,.08),rgba(227,200,150,.03));border:1px solid rgba(201,168,106,.2);border-radius:6px;padding:16px;margin:0 4px;}
+.mk-pts-n{font-family:'Fraunces',serif;font-size:2rem;color:var(--or);line-height:1;}
+.mk-pts-l{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gris);margin-bottom:10px;}
+.mk-bar{height:4px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.mk-bar-f{width:62%;height:100%;background:var(--or);}
+
+/* Mock screen 3: produit */
+.mk-pimg{height:160px;background:linear-gradient(135deg,#1a1714,#241d16);display:flex;align-items:center;justify-content:center;font-size:3.4rem;}
+.mk-pbody{padding:16px;}
+.mk-pname{font-family:'Fraunces',serif;font-style:italic;font-size:1.2rem;margin-bottom:6px;}
+.mk-pdesc{font-size:.58rem;color:var(--gris);line-height:1.6;margin-bottom:14px;}
+.mk-pl{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gris);margin-bottom:8px;}
+.mk-pgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.mk-pcell{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:9px;text-align:center;}
+.mk-pcell.on{border-color:var(--or);background:rgba(201,168,106,.06);}
+.mk-pq{font-size:.5rem;color:var(--gris);}
+.mk-pp{font-size:.7rem;color:var(--or);font-weight:700;}
+.mk-btn{background:var(--or);color:var(--noir);text-align:center;padding:10px;border-radius:3px;font-size:.62rem;font-weight:700;}
+
+.phone-label{text-align:center;font-size:.7rem;color:var(--gris);letter-spacing:.1em;margin-top:18px;text-transform:uppercase;font-weight:500;}
+
+/* STEPS */
+.steps{max-width:680px;margin:50px auto 0;}
+.step{display:flex;gap:24px;padding:28px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
+.step:last-child{border-bottom:none;}
+.step-n{font-family:'Fraunces',serif;font-style:italic;font-size:1.8rem;color:var(--or);opacity:.5;flex-shrink:0;width:50px;}
+.step-c h3{font-size:1.1rem;font-weight:600;margin-bottom:6px;}
+.step-c p{font-size:.88rem;color:var(--gris);font-weight:300;line-height:1.7;}
+
+/* CTA FINAL */
+.cta-final{text-align:center;padding:100px 24px;position:relative;}
+.cta-final::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,106,.05),transparent 70%);pointer-events:none;}
+.cta-final h2{font-family:'Fraunces',serif;font-size:clamp(2.2rem,7vw,3.4rem);font-weight:300;line-height:1.05;margin-bottom:20px;}
+.cta-final h2 em{font-style:italic;color:var(--or);}
+.cta-final p{color:var(--gris);font-weight:300;margin-bottom:40px;font-size:.95rem;}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--line);padding:40px 24px;text-align:center;}
+.footer-brand{font-family:'Fraunces',serif;font-style:italic;font-size:1.2rem;margin-bottom:8px;}
+.footer-tag{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gris);}
+
+@media(max-width:600px){
+  .phone{width:200px;height:420px;}
+  .features{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">Maison · Sélection privée</div>
+  <h1><em>Barry</em>Shop</h1>
+  <div class="hero-line"></div>
+  <p>Votre boutique privée, directement dans Telegram. Catalogue, commande et fidélité — pensés pour une expérience simple, rapide et discrète.</p>
+  <div class="hero-cta">
+    <a href="https://t.me/Barryhouse59_bot" class="btn-primary">Ouvrir la boutique</a>
+    <a href="https://t.me/barryshop59" class="btn-ghost">Rejoindre le canal</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="sec-eyebrow">Ce qui vous attend</div>
+  <h2 class="sec-title">Une boutique <em>complète</em></h2>
+  <p class="sec-sub">Tout ce dont vous avez besoin, réuni dans une seule application fluide et élégante.</p>
+  <div class="features">
+    <div class="feat">
+      <div class="feat-num">i.</div>
+      <span class="feat-icon">🛍️</span>
+      <h3>Catalogue vivant</h3>
+      <p>Parcourez nos produits classés par catégorie, avec photos et vidéos en haute qualité.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">ii.</div>
+      <span class="feat-icon">🛒</span>
+      <h3>Panier intelligent</h3>
+      <p>Ajoutez, ajustez les quantités et visualisez votre total en temps réel avant de commander.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">iii.</div>
+      <span class="feat-icon">💬</span>
+      <h3>Commande facile</h3>
+      <p>Finalisez en un geste via Snapchat ou WhatsApp, récap pré-rempli automatiquement.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">iv.</div>
+      <span class="feat-icon">✦</span>
+      <h3>Points de fidélité</h3>
+      <p>Cumulez des points à chaque commande et grimpez les niveaux : Bronze, Silver, Gold, Platine.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">v.</div>
+      <span class="feat-icon">👤</span>
+      <h3>Espace client</h3>
+      <p>Retrouvez votre historique de commandes et votre statut de membre à tout moment.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-num">vi.</div>
+      <span class="feat-icon">★</span>
+      <h3>Avis clients</h3>
+      <p>Partagez votre expérience et consultez les retours de la communauté.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section class="showcase">
+  <div class="sec-eyebrow">Aperçu</div>
+  <h2 class="sec-title">L'expérience <em>en main</em></h2>
+  <p class="sec-sub">Une interface soignée, pensée pour le mobile, du premier regard à la commande.</p>
+  <div class="phones">
+
+    <!-- Phone 1: Catalogue -->
+    <div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="mk-hd">
+            <div class="mk-eyebrow">Sélection</div>
+            <div class="mk-title">Catalogue</div>
+          </div>
+          <div class="mk-pills">
+            <div class="mk-pill on">Tous</div>
+            <div class="mk-pill">Premium</div>
+            <div class="mk-pill">Classics</div>
+          </div>
+          <div class="mk-grid">
+            <div class="mk-card"><div class="mk-card-img">🌿</div><div class="mk-card-b"><div class="mk-card-n">Amnesia</div><div class="mk-card-p">dès 40€</div></div></div>
+            <div class="mk-card"><div class="mk-card-img">✦</div><div class="mk-card-b"><div class="mk-card-n">Mousse</div><div class="mk-card-p">dès 35€</div></div></div>
+            <div class="mk-card"><div class="mk-card-img">🍃</div><div class="mk-card-b"><div class="mk-card-n">Gelato</div><div class="mk-card-p">dès 45€</div></div></div>
+            <div class="mk-card"><div class="mk-card-img">◆</div><div class="mk-card-b"><div class="mk-card-n">Zkittlez</div><div class="mk-card-p">dès 50€</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">Catalogue</div>
+    </div>
+
+    <!-- Phone 2: Produit -->
+    <div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="mk-pimg">🌿</div>
+          <div class="mk-pbody">
+            <div class="mk-pname">Amnesia</div>
+            <div class="mk-pdesc">Sélection premium, qualité constante et livraison soignée.</div>
+            <div class="mk-pl">Grille tarifaire</div>
+            <div class="mk-pgrid">
+              <div class="mk-pcell on"><div class="mk-pq">1g</div><div class="mk-pp">10€</div></div>
+              <div class="mk-pcell"><div class="mk-pq">5g</div><div class="mk-pp">40€</div></div>
+              <div class="mk-pcell"><div class="mk-pq">10g</div><div class="mk-pp">75€</div></div>
+              <div class="mk-pcell"><div class="mk-pq">25g</div><div class="mk-pp">170€</div></div>
+            </div>
+            <div class="mk-btn">Ajouter au panier</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">Fiche produit</div>
+    </div>
+
+    <!-- Phone 3: Compte -->
+    <div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="mk-acc">
+            <div class="mk-av">B</div>
+            <div class="mk-acc-n">Membre</div>
+            <div class="mk-acc-s">Niveau Gold</div>
+            <div class="mk-pts-card">
+              <div class="mk-pts-n">340</div>
+              <div class="mk-pts-l">Points fidélité</div>
+              <div class="mk-bar"><div class="mk-bar-f"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">Espace client</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="section">
+  <div class="sec-eyebrow">Comment ça marche</div>
+  <h2 class="sec-title">Commander, <em>simplement</em></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">i.</div>
+      <div class="step-c"><h3>Parcourez le catalogue</h3><p>Explorez les produits par catégorie et découvrez les tarifs en un coup d'œil.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-n">ii.</div>
+      <div class="step-c"><h3>Composez votre panier</h3><p>Sélectionnez vos produits, ajustez les quantités, visualisez votre total.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-n">iii.</div>
+      <div class="step-c"><h3>Finalisez votre commande</h3><p>Faites une capture de votre panier, envoyez-la nous avec votre adresse via Snap ou WhatsApp. On se charge du reste.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-n">iv.</div>
+      <div class="step-c"><h3>Cumulez vos points</h3><p>Chaque commande confirmée vous rapproche du niveau supérieur et de vos récompenses.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Prêt à <em>commencer</em> ?</h2>
+  <p>Ouvrez la boutique et rejoignez le canal pour ne rien manquer.</p>
+  <div class="hero-cta" style="justify-content:center">
+    <a href="https://t.me/Barryhouse59_bot" class="btn-primary">Ouvrir la boutique</a>
+    <a href="https://t.me/barryshop59" class="btn-ghost">Rejoindre le canal</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">BarryShop</div>
+  <div class="footer-tag">Discrétion · Fiabilité · Qualité</div>
+</footer>
+
+</body>
+</html>
