@@ -34,6 +34,13 @@ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 /* .grad : plus de degrade sur texte, aplat ambre */
 .grad{color:var(--g1);}
 
+/* ---------- BARRE STATUT (pilotable depuis l'admin) ---------- */
+.status-bar{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:var(--card);display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.status-txt{flex:1;min-width:0;}
+.status-txt b{font-family:'Bricolage Grotesque',sans-serif;font-size:.98rem;font-weight:600;letter-spacing:-.012em;display:block;margin-bottom:3px;}
+.status-txt small{color:var(--gris);font-size:.76rem;}
+.status-tag{font-family:'Space Mono',monospace;font-size:.66rem;font-weight:700;color:var(--g1);border:1px solid var(--dim);padding:5px 9px;border-radius:6px;flex-shrink:0;letter-spacing:.06em;}
+
 /* ---------- LOADER ---------- */
 #loader{position:fixed;inset:0;background:var(--ink);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease;}
 #loader.out{opacity:0;pointer-events:none;}
@@ -349,6 +356,19 @@ input[type=color]{width:42px;height:42px;border:none;border-radius:9px;cursor:po
 </div>
 </div>
 <div class="pg">
+<div class="status-bar" id="status-bar" style="display:none">
+<div class="status-txt">
+<b id="st-title"></b>
+<small id="st-sub"></small>
+</div>
+<div class="status-tag" id="st-tag"></div>
+</div>
+
+<div id="best-wrap" style="display:none">
+<div class="sec-lbl">Les plus demandés</div>
+<div class="pgrid" id="best-grid" style="padding:0"></div>
+</div>
+
 <div class="sec-lbl">Navigation</div>
 <div class="mgrid">
 <div class="mc" onclick="goTo('catalogue')"><div class="mc-ic">🛍️</div><span>Catalogue</span></div>
@@ -486,7 +506,11 @@ input[type=color]{width:42px;height:42px;border:none;border-radius:9px;cursor:po
 
 <!-- RÉGLAGES -->
 <div class="adm-sec" id="as-set">
-<p style="font-size:.72rem;color:var(--gris);margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">Snapchat commandes</p>
+<p style="font-size:.72rem;color:var(--gris);margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">Bandeau horaires (accueil)</p>
+<input class="inp" id="set-st-title" placeholder="Titre — ex: Aujourd'hui jusqu'à 23 h"/>
+<input class="inp" id="set-st-sub" placeholder="Sous-titre — ex: Dernière commande à 22 h 30"/>
+<input class="inp" id="set-st-tag" placeholder="Pastille — ex: OUVERT (vide = bandeau masqué)"/>
+<p style="font-size:.72rem;color:var(--gris);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.12em">Snapchat commandes</p>
 <input class="inp" id="set-snap" placeholder="https://snapchat.com/add/TON_SNAP"/>
 <p style="font-size:.72rem;color:var(--gris);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.12em">WhatsApp commandes</p>
 <input class="inp" id="set-wa" placeholder="Numéro ex: 33612345678 (sans + ni espace)"/>
@@ -569,6 +593,7 @@ input[type=color]{width:42px;height:42px;border:none;border-radius:9px;cursor:po
 <input class="inp" id="fp-desc" placeholder="Description courte"/>
 <label>Catégorie</label>
 <select class="inp" id="fp-cat"></select>
+<div class="cr" style="margin-top:14px"><label for="fp-best">⭐ Afficher en « plus demandé » sur l'accueil</label><input type="checkbox" id="fp-best" style="width:22px;height:22px;accent-color:var(--g1)"/></div>
 <label>Photos et vidéos (plusieurs possibles)</label>
 <div class="up-thumbs" id="up-thumbs"></div>
 <div class="up-zone">
@@ -627,7 +652,7 @@ sb.from('contacts').select('*').order('created_at'),
 sb.from('app_settings').select('*')
 ]);
 D.categories=(cR.data||[]).map(c=>({id:c.id,name:c.name}));
-D.products=(pR.data||[]).map(p=>({id:p.id,name:p.name,desc:p.description,cat:p.category,emoji:p.emoji,media:p.media,mediaType:p.media_type,medias:normMedias(p),prices:Array.isArray(p.prices)?p.prices:tryParse(p.prices)}));
+D.products=(pR.data||[]).map(p=>({id:p.id,name:p.name,desc:p.description,cat:p.category,emoji:p.emoji,media:p.media,mediaType:p.media_type,medias:normMedias(p),best:!!p.bestseller,prices:Array.isArray(p.prices)?p.prices:tryParse(p.prices)}));
 D.reviews=(rvR.data||[]).map(r=>({id:r.id,stars:r.stars,text:r.content,date:r.review_date}));
 D.contacts=(coR.data||[]).map(c=>({id:c.id,name:c.name,icon:c.icon,url:c.url}));
 (sR.data||[]).forEach(s=>{D.settings[s.key]=s.value;});
@@ -704,6 +729,24 @@ if(pg==='maison')renderHomeLinks();
 }
 
 function renderHomeLinks(){
+/* Bandeau horaires : affiché seulement si la pastille est renseignée en admin */
+const sb_=document.getElementById('status-bar');
+const tag=(D.settings.stTag||'').trim();
+if(tag){
+sb_.style.display='flex';
+document.getElementById('st-title').textContent=D.settings.stTitle||'';
+document.getElementById('st-sub').textContent=D.settings.stSub||'';
+document.getElementById('st-tag').textContent=tag;
+}else sb_.style.display='none';
+
+/* Les plus demandés */
+const bw=document.getElementById('best-wrap'),bg=document.getElementById('best-grid');
+const best=D.products.filter(p=>p.best);
+if(best.length){
+bw.style.display='block';
+bg.innerHTML=best.map(p=>cardHtml(p)).join('');
+}else bw.style.display='none';
+
 const rc=document.getElementById('rev-count');
 if(rc){
 if(D.reviews.length){
@@ -712,6 +755,16 @@ rc.textContent=`${moy}★ · ${D.reviews.length} avis ›`;
 }else rc.textContent='Soyez le premier ›';
 }
 document.getElementById('home-links').innerHTML=D.contacts.map(c=>`<a class="lbtn" href="${c.url}" target="_blank"><span style="font-size:1.3rem">${c.icon}</span><span>${c.name}</span><span style="margin-left:auto;color:var(--gris)">›</span></a>`).join('');
+}
+
+/* Carte produit : utilisée par le catalogue ET par les plus demandés */
+function cardHtml(p){
+const ri=D.products.indexOf(p);
+const from=p.prices?.length?p.prices[0].price:'';
+const cv=coverOf(p);
+const nb=(p.medias||[]).length;
+const badge=nb>1?`<div class="pcard-vbadge">1/${nb}</div>`:(cv&&cv.type==='video'?'<div class="pcard-vbadge">▶</div>':'');
+return`<div class="pcard" onclick="openSheet(${ri})"><div class="pcard-img">${thumbHtml(cv,true)}${!cv?p.emoji||'🟢':''}${badge}${p.cat?`<div class="pcard-cat">${p.cat}</div>`:''}</div><div class="pcard-info"><div class="pcard-name">${p.name}</div><div class="pcard-desc">${p.desc||''}</div>${from?`<div class="pcard-from">DÈS ${from}</div>`:''}</div></div>`;
 }
 
 let curCat='Tous',curPIdx=null,selPrice=null,prodQty=1;
@@ -727,14 +780,7 @@ function renderProds(){
 const g=document.getElementById('pgrid');
 const list=curCat==='Tous'?D.products:D.products.filter(p=>p.cat===curCat);
 if(!list.length){g.innerHTML='<div class="empty-s" style="grid-column:span 2">Aucun produit ici</div>';return;}
-g.innerHTML=list.map(p=>{
-const ri=D.products.indexOf(p);
-const from=p.prices?.length?p.prices[0].price:'';
-const cv=coverOf(p);
-const nb=(p.medias||[]).length;
-const badge=nb>1?`<div class="pcard-vbadge">1/${nb}</div>`:(cv&&cv.type==='video'?'<div class="pcard-vbadge">▶</div>':'');
-return`<div class="pcard" onclick="openSheet(${ri})"><div class="pcard-img">${thumbHtml(cv,true)}${!cv?p.emoji||'🟢':''}${badge}${p.cat?`<div class="pcard-cat">${p.cat}</div>`:''}</div><div class="pcard-info"><div class="pcard-name">${p.name}</div><div class="pcard-desc">${p.desc||''}</div>${from?`<div class="pcard-from">À partir de ${from}</div>`:''}</div></div>`;
-}).join('');
+g.innerHTML=list.map(p=>cardHtml(p)).join('');
 }
 
 /* === LECTEUR ADAPTATIF MULTI-MEDIA (grande vue + vignettes) === */
@@ -1106,6 +1152,7 @@ document.getElementById('fp-name').value=p.name;
 document.getElementById('fp-desc').value=p.desc||'';
 document.getElementById('fp-emoji').value=p.emoji||'🟢';
 if(p.cat)sel.value=p.cat;
+document.getElementById('fp-best').checked=!!p.best;
 curMedias=(p.medias||[]).map(m=>({url:m.url,type:m.type||'image'}));
 renderUpThumbs();
 (p.prices||[]).forEach(pr=>addPR(pr.qty,pr.price));
@@ -1113,6 +1160,7 @@ renderUpThumbs();
 }else{
 ['fp-name','fp-desc'].forEach(id=>document.getElementById(id).value='');
 document.getElementById('fp-emoji').value='🟢';
+document.getElementById('fp-best').checked=false;
 addPR();
 }
 document.getElementById('mod-prod').classList.add('open');
@@ -1120,17 +1168,17 @@ document.getElementById('mod-prod').classList.add('open');
 
 async function saveProd(){
 const name=document.getElementById('fp-name').value.trim();if(!name){alert('Nom obligatoire');return;}
-const prod={name,description:document.getElementById('fp-desc').value.trim(),category:document.getElementById('fp-cat').value,emoji:document.getElementById('fp-emoji').value.trim()||'🟢',medias:curMedias,media:curMedias[0]?.url||'',media_type:curMedias[0]?.type||'',prices:getPRs()};
+const prod={name,description:document.getElementById('fp-desc').value.trim(),category:document.getElementById('fp-cat').value,emoji:document.getElementById('fp-emoji').value.trim()||'🟢',bestseller:document.getElementById('fp-best').checked,medias:curMedias,media:curMedias[0]?.url||'',media_type:curMedias[0]?.type||'',prices:getPRs()};
 if(editPId)await sb.from('products').update(prod).eq('id',editPId);
 else await sb.from('products').insert(prod);
-await loadAll();closeMod('mod-prod');renderAdmProds();renderProds();showOk();
+await loadAll();closeMod('mod-prod');renderAdmProds();renderProds();renderHomeLinks();showOk();
 }
 
 function renderAdmProds(){
 document.getElementById('adm-prods').innerHTML=!D.products.length?'<div class="empty-s">Aucun produit</div>':D.products.map(p=>{
 const cv=coverOf(p);
 const nb=(p.medias||[]).length;
-return`<div class="adm-item"><div class="adm-th">${thumbHtml(cv,true)}${!cv?p.emoji||'🟢':''}</div><div class="adm-info"><div class="adm-name">${p.name}</div><div class="adm-sub">${p.cat||'—'} · ${p.prices?.length||0} tarif(s)${nb>1?' · '+nb+' médias':''}</div></div><div class="adm-acts"><button class="btn-se" onclick="openProdMod('${p.id}')">✏️</button><button class="btn-re" onclick="delProd('${p.id}')">🗑️</button></div></div>`;
+return`<div class="adm-item"><div class="adm-th">${thumbHtml(cv,true)}${!cv?p.emoji||'🟢':''}</div><div class="adm-info"><div class="adm-name">${p.best?'⭐ ':''}${p.name}</div><div class="adm-sub">${p.cat||'—'} · ${p.prices?.length||0} tarif(s)${nb>1?' · '+nb+' médias':''}</div></div><div class="adm-acts"><button class="btn-se" onclick="openProdMod('${p.id}')">✏️</button><button class="btn-re" onclick="delProd('${p.id}')">🗑️</button></div></div>`;
 }).join('');
 }
 
@@ -1169,11 +1217,11 @@ await loadAll();closeMod('mod-cont');renderAdmConts();renderHomeLinks();renderCo
 async function delCont(id){if(!confirm('Supprimer ?'))return;await sb.from('contacts').delete().eq('id',id);await loadAll();renderAdmConts();renderHomeLinks();}
 
 // RÉGLAGES
-function loadSetForm(){document.getElementById('col-g1').value=D.settings.color||'#00ff87';document.getElementById('set-snap').value=D.settings.snapUrl||'';document.getElementById('set-wa').value=D.settings.waNumber||'';document.getElementById('set-tl').value=D.settings.tagline||'';document.getElementById('set-pw').value='';}
+function loadSetForm(){document.getElementById('col-g1').value=D.settings.color||'#FF9E3D';document.getElementById('set-snap').value=D.settings.snapUrl||'';document.getElementById('set-wa').value=D.settings.waNumber||'';document.getElementById('set-tl').value=D.settings.tagline||'';document.getElementById('set-st-title').value=D.settings.stTitle||'';document.getElementById('set-st-sub').value=D.settings.stSub||'';document.getElementById('set-st-tag').value=D.settings.stTag||'';document.getElementById('set-pw').value='';}
 
 async function saveSettings(){
 const np=document.getElementById('set-pw').value.trim();
-const updates=[{key:'color',value:document.getElementById('col-g1').value},{key:'snapUrl',value:document.getElementById('set-snap').value.trim()},{key:'waNumber',value:document.getElementById('set-wa').value.trim()},{key:'tagline',value:document.getElementById('set-tl').value.trim()}];
+const updates=[{key:'color',value:document.getElementById('col-g1').value},{key:'snapUrl',value:document.getElementById('set-snap').value.trim()},{key:'waNumber',value:document.getElementById('set-wa').value.trim()},{key:'tagline',value:document.getElementById('set-tl').value.trim()},{key:'stTitle',value:document.getElementById('set-st-title').value.trim()},{key:'stSub',value:document.getElementById('set-st-sub').value.trim()},{key:'stTag',value:document.getElementById('set-st-tag').value.trim()}];
 if(np){updates.push({key:'password',value:np});ADM_PW=np;localStorage.setItem('bs_adm_pw',np);}
 for(const u of updates){await sb.from('app_settings').upsert({key:u.key,value:u.value},{onConflict:'key'});}
 await loadAll();applySettings();renderHomeLinks();showOk();
