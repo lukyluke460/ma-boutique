@@ -71,10 +71,21 @@ body{background:var(--noir);color:var(--blanc);font-family:'Helvetica Neue',Aria
 .ov.open{display:flex;}
 .psheet{background:var(--noir2);border-radius:28px 28px 0 0;width:100%;max-height:92vh;overflow-y:auto;}
 /* === LECTEUR MEDIA ADAPTATIF === */
-..psheet-media{width:100%;aspect-ratio:9/16;max-height:75vh;background:#000;display:flex;align-items:center;justify-content:center;font-size:6rem;background-size:contain;background-repeat:no-repeat;background-position:center;border-radius:28px 28px 0 0;position:relative;overflow:hidden;}
-.psheet-media video{width:100%;height:100%;object-fit:contain;}
-.psheet-media img{width:100%;height:100%;object-fit:contain;}
+.psheet-media{width:100%;max-height:70vh;min-height:220px;background:#000;display:flex;align-items:center;justify-content:center;font-size:6rem;border-radius:28px 28px 0 0;position:relative;overflow:hidden;}
+.psheet-media img{width:100%;height:auto;max-height:70vh;object-fit:contain;display:block;}
+.psheet-media video{width:100%;height:auto;max-height:70vh;object-fit:contain;display:block;}
 .psheet-media-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 70%,var(--noir2));pointer-events:none;}
+/* === VIGNETTES MULTI-MEDIA === */
+.psheet-thumbs{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;}
+.psheet-thumbs::-webkit-scrollbar{display:none;}
+.pthumb{width:58px;height:58px;border-radius:10px;overflow:hidden;flex-shrink:0;border:2px solid #222;background:var(--noir3);cursor:pointer;position:relative;}
+.pthumb.sel{border-color:var(--g1);}
+.pthumb img,.pthumb video{width:100%;height:100%;object-fit:cover;display:block;}
+.pthumb-play{position:absolute;bottom:2px;right:3px;font-size:.6rem;}
+.up-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.up-thumb{width:66px;height:66px;border-radius:10px;overflow:hidden;position:relative;background:var(--noir3);border:1px solid #222;}
+.up-thumb img,.up-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
+.up-thumb-x{position:absolute;top:2px;right:2px;width:19px;height:19px;border-radius:50%;background:rgba(255,68,68,.92);color:#fff;border:none;font-size:.62rem;cursor:pointer;line-height:1;padding:0;}
 .close-btn{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.65);border:1px solid #333;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;font-size:.9rem;border:none;}
 .psheet-body{padding:22px 20px 40px;}
 .psheet-name{font-size:1.5rem;font-weight:900;margin-bottom:6px;}
@@ -245,7 +256,7 @@ input[type=color]{width:44px;height:44px;border:none;border-radius:10px;cursor:p
 <div class="bg-mesh"></div>
 <div id="loader">
 <div class="l-ring"><div class="l-logo">BS</div></div>
-<div class="l-name">TEST123</div>
+<div class="l-name">BarryShop</div>
 <div class="l-sub">Discrétion · Fiabilité · Qualité</div>
 <div class="l-bar"><div class="l-fill"></div></div>
 </div>
@@ -425,6 +436,7 @@ input[type=color]{width:44px;height:44px;border:none;border-radius:10px;cursor:p
 <div class="psheet-media-ov"></div>
 <button class="close-btn" onclick="closeOv('prod-ov')">✕</button>
 </div>
+<div class="psheet-thumbs" id="ps-thumbs"></div>
 <div class="psheet-body">
 <div class="psheet-name" id="ps-name"></div>
 <div class="psheet-desc" id="ps-desc"></div>
@@ -474,14 +486,12 @@ input[type=color]{width:44px;height:44px;border:none;border-radius:10px;cursor:p
 <input class="inp" id="fp-desc" placeholder="Description courte"/>
 <label>Catégorie</label>
 <select class="inp" id="fp-cat"></select>
-<label>Photo ou vidéo</label>
+<label>Photos et vidéos (plusieurs possibles)</label>
+<div class="up-thumbs" id="up-thumbs"></div>
 <div class="up-zone">
-<input type="file" accept="image/*,video/*" id="fp-file" onchange="handleMedia(this)"/>
-<div id="up-ph"><div style="font-size:2rem;margin-bottom:8px">📷🎬</div><div style="font-size:.8rem;color:var(--gris)">Photo ou vidéo</div></div>
-<img id="up-prev-img" class="up-prev" alt=""/>
-<video id="up-prev-vid" class="up-prev-vid" autoplay muted loop playsinline></video>
+<input type="file" accept="image/*,video/*" id="fp-file" multiple onchange="handleMedia(this)"/>
+<div id="up-ph"><div style="font-size:2rem;margin-bottom:8px">📷🎬</div><div style="font-size:.8rem;color:var(--gris)">Ajouter des photos ou vidéos</div></div>
 </div>
-<button class="btn-gr" id="btn-rm-media" onclick="removeMedia()" style="display:none">🗑️ Supprimer le média</button>
 <label>Emoji (si pas de média)</label>
 <input class="inp" id="fp-emoji" value="🟢"/>
 <label>Grille tarifaire</label>
@@ -534,7 +544,7 @@ sb.from('contacts').select('*').order('created_at'),
 sb.from('app_settings').select('*')
 ]);
 D.categories=(cR.data||[]).map(c=>({id:c.id,name:c.name}));
-D.products=(pR.data||[]).map(p=>({id:p.id,name:p.name,desc:p.description,cat:p.category,emoji:p.emoji,media:p.media,mediaType:p.media_type,prices:Array.isArray(p.prices)?p.prices:tryParse(p.prices)}));
+D.products=(pR.data||[]).map(p=>({id:p.id,name:p.name,desc:p.description,cat:p.category,emoji:p.emoji,media:p.media,mediaType:p.media_type,medias:normMedias(p),prices:Array.isArray(p.prices)?p.prices:tryParse(p.prices)}));
 D.reviews=(rvR.data||[]).map(r=>({id:r.id,stars:r.stars,text:r.content,date:r.review_date}));
 D.contacts=(coR.data||[]).map(c=>({id:c.id,name:c.name,icon:c.icon,url:c.url}));
 (sR.data||[]).forEach(s=>{D.settings[s.key]=s.value;});
@@ -544,6 +554,14 @@ await loadClient();
 }
 
 function tryParse(v){try{return JSON.parse(v||'[]');}catch{return[];}}
+
+/* Compat : produits d'avant (1 seul media) -> tableau */
+function normMedias(p){
+let arr=Array.isArray(p.medias)?p.medias:tryParse(p.medias);
+arr=(arr||[]).filter(m=>m&&m.url);
+if(!arr.length&&p.media)arr=[{url:p.media,type:p.media_type||'image'}];
+return arr;
+}
 
 async function loadClient(){
 try{
@@ -616,30 +634,48 @@ return`<div class="pcard" onclick="openSheet(${ri})"><div class="pcard-img" styl
 }).join('');
 }
 
-/* === LECTEUR ADAPTATIF : s'ajuste au format du fichier (9:16, carré, paysage) === */
-function openSheet(idx){
-const p=D.products[idx];curPIdx=idx;selPrice=null;prodQty=1;
-document.getElementById('qty-n').textContent='1';
+/* === LECTEUR ADAPTATIF MULTI-MEDIA (grande vue + vignettes) === */
+let curMediaList=[],curMediaIdx=0;
+
+function showMedia(i){
 const med=document.getElementById('ps-media');
+curMediaIdx=i;
 const oldV=med.querySelector('video');if(oldV)oldV.remove();
 const oldI=med.querySelector('img');if(oldI)oldI.remove();
 const oldE=med.querySelector('.ps-em');if(oldE)oldE.remove();
 med.style.backgroundImage='';
-if(p.media&&p.mediaType==='video'){
+const m=curMediaList[i];
+if(m&&m.type==='video'){
 med.style.fontSize='0';
 const v=document.createElement('video');
-v.src=p.media;v.autoplay=true;v.muted=true;v.loop=true;v.playsInline=true;v.controls=true;
+v.src=m.url;v.autoplay=true;v.muted=true;v.loop=true;v.playsInline=true;v.controls=true;
 med.insertBefore(v,med.firstChild);
-}else if(p.media){
+}else if(m){
 med.style.fontSize='0';
 const img=document.createElement('img');
-img.src=p.media;img.alt=p.name||'';
+img.src=m.url;img.alt='';
 med.insertBefore(img,med.firstChild);
 }else{
 med.style.fontSize='6rem';
-const em=document.createElement('span');em.className='ps-em';em.textContent=p.emoji||'🟢';
+const em=document.createElement('span');em.className='ps-em';
+em.textContent=D.products[curPIdx]?.emoji||'🟢';
 med.insertBefore(em,med.firstChild);
 }
+document.querySelectorAll('#ps-thumbs .pthumb').forEach((t,n)=>t.classList.toggle('sel',n===i));
+}
+
+function openSheet(idx){
+const p=D.products[idx];curPIdx=idx;selPrice=null;prodQty=1;
+document.getElementById('qty-n').textContent='1';
+curMediaList=p.medias&&p.medias.length?p.medias:[];
+const th=document.getElementById('ps-thumbs');
+if(curMediaList.length>1){
+th.style.display='flex';
+th.innerHTML=curMediaList.map((m,i)=>m.type==='video'
+?`<div class="pthumb" onclick="showMedia(${i})"><video src="${m.url}" muted playsinline preload="metadata"></video><span class="pthumb-play">▶</span></div>`
+:`<div class="pthumb" onclick="showMedia(${i})"><img src="${m.url}" alt=""/></div>`).join('');
+}else{th.style.display='none';th.innerHTML='';}
+showMedia(0);
 document.getElementById('ps-name').textContent=p.name;
 document.getElementById('ps-desc').textContent=p.desc||'';
 document.getElementById('ps-prices').innerHTML=p.prices?.length
@@ -879,46 +915,42 @@ await loadAll();renderAdmCats();renderPills();
 }
 
 // PRODUITS
-let editPId=null,curMedia='',curMediaType='';
+let editPId=null,curMedias=[];
 
-/* === UPLOAD VIA SUPABASE STORAGE : plus de limite 5 Mo, plus de compression === */
+/* === UPLOAD MULTIPLE VIA SUPABASE STORAGE (limite 50 Mo/fichier en plan gratuit) === */
+const UP_PH_DEFAULT='<div style="font-size:2rem;margin-bottom:8px">📷🎬</div><div style="font-size:.8rem;color:var(--gris)">Ajouter des photos ou vidéos</div>';
+
 async function handleMedia(input){
-const file=input.files[0];if(!file)return;
-const isVid=file.type.startsWith('video/');
+const files=Array.from(input.files||[]);if(!files.length)return;
 const ph=document.getElementById('up-ph');
-const phDefault='<div style="font-size:2rem;margin-bottom:8px">📷🎬</div><div style="font-size:.8rem;color:var(--gris)">Photo ou vidéo</div>';
-ph.style.display='block';
-ph.innerHTML='<div style="font-size:.85rem;color:var(--gris)">⏳ Upload en cours...</div>';
+let done=0,fail=0;
+for(const file of files){
+ph.innerHTML=`<div style="font-size:.85rem;color:var(--gris)">⏳ Upload ${done+1}/${files.length}...</div>`;
 try{
 const ext=(file.name.split('.').pop()||'bin').toLowerCase();
 const path=`${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
 const{error}=await sb.storage.from(STORAGE_BUCKET).upload(path,file,{upsert:true,contentType:file.type});
-if(error){alert('Erreur upload: '+error.message);ph.innerHTML=phDefault;return;}
+if(error){fail++;console.error('upload',error.message);continue;}
 const{data:pub}=sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-curMedia=pub.publicUrl;curMediaType=isVid?'video':'image';
-if(isVid){
-const v=document.getElementById('up-prev-vid');v.src=curMedia;v.style.display='block';
-document.getElementById('up-prev-img').style.display='none';
-}else{
-const pi=document.getElementById('up-prev-img');pi.src=curMedia;pi.style.display='block';
-document.getElementById('up-prev-vid').style.display='none';
+curMedias.push({url:pub.publicUrl,type:file.type.startsWith('video/')?'video':'image'});
+done++;
+}catch(e){fail++;console.error('upload',e);}
 }
-ph.style.display='none';ph.innerHTML=phDefault;
-document.getElementById('btn-rm-media').style.display='block';
-}catch(e){
-alert('Erreur: '+(e&&e.message?e.message:e));
-ph.innerHTML=phDefault;
-}
+ph.innerHTML=UP_PH_DEFAULT;
+input.value='';
+renderUpThumbs();
+if(fail)alert(`${fail} fichier(s) non envoyé(s). Vérifie qu'ils font moins de 50 Mo.`);
 }
 
-function removeMedia(){
-curMedia='';curMediaType='';
-document.getElementById('up-prev-img').style.display='none';
-document.getElementById('up-prev-vid').style.display='none';
-document.getElementById('up-ph').style.display='block';
-document.getElementById('btn-rm-media').style.display='none';
-document.getElementById('fp-file').value='';
+function renderUpThumbs(){
+const c=document.getElementById('up-thumbs');
+c.innerHTML=curMedias.map((m,i)=>m.type==='video'
+?`<div class="up-thumb"><video src="${m.url}" muted playsinline preload="metadata"></video><button class="up-thumb-x" onclick="removeMediaAt(${i})">✕</button></div>`
+:`<div class="up-thumb"><img src="${m.url}" alt=""/><button class="up-thumb-x" onclick="removeMediaAt(${i})">✕</button></div>`).join('');
 }
+
+function removeMediaAt(i){curMedias.splice(i,1);renderUpThumbs();}
+function removeMedia(){curMedias=[];renderUpThumbs();document.getElementById('fp-file').value='';}
 
 function addPR(qty='',price=''){
 const div=document.createElement('div');div.className='pr-row';
@@ -941,7 +973,8 @@ document.getElementById('fp-name').value=p.name;
 document.getElementById('fp-desc').value=p.desc||'';
 document.getElementById('fp-emoji').value=p.emoji||'🟢';
 if(p.cat)sel.value=p.cat;
-if(p.media){curMedia=p.media;curMediaType=p.mediaType||'image';if(curMediaType==='video'){const v=document.getElementById('up-prev-vid');v.src=curMedia;v.style.display='block';}else{const pi=document.getElementById('up-prev-img');pi.src=curMedia;pi.style.display='block';}document.getElementById('up-ph').style.display='none';document.getElementById('btn-rm-media').style.display='block';}
+curMedias=(p.medias||[]).map(m=>({url:m.url,type:m.type||'image'}));
+renderUpThumbs();
 (p.prices||[]).forEach(pr=>addPR(pr.qty,pr.price));
 }
 }else{
@@ -954,7 +987,7 @@ document.getElementById('mod-prod').classList.add('open');
 
 async function saveProd(){
 const name=document.getElementById('fp-name').value.trim();if(!name){alert('Nom obligatoire');return;}
-const prod={name,description:document.getElementById('fp-desc').value.trim(),category:document.getElementById('fp-cat').value,emoji:document.getElementById('fp-emoji').value.trim()||'🟢',media:curMedia,media_type:curMediaType,prices:getPRs()};
+const prod={name,description:document.getElementById('fp-desc').value.trim(),category:document.getElementById('fp-cat').value,emoji:document.getElementById('fp-emoji').value.trim()||'🟢',medias:curMedias,media:curMedias[0]?.url||'',media_type:curMedias[0]?.type||'',prices:getPRs()};
 if(editPId)await sb.from('products').update(prod).eq('id',editPId);
 else await sb.from('products').insert(prod);
 await loadAll();closeMod('mod-prod');renderAdmProds();renderProds();showOk();
