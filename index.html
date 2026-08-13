@@ -646,7 +646,7 @@ async function loadAll(){
 try{
 const[cR,pR,rvR,coR,sR]=await Promise.all([
 sb.from('categories').select('*').order('created_at'),
-sb.from('products').select('*').order('created_at'),
+sb.from('products').select('*').order('created_at',{ascending:false}),
 sb.from('reviews').select('*').order('created_at',{ascending:false}),
 sb.from('contacts').select('*').order('created_at'),
 sb.from('app_settings').select('*')
