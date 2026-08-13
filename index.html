@@ -86,7 +86,11 @@ body{background:var(--noir);color:var(--blanc);font-family:'Helvetica Neue',Aria
 .up-thumb{width:66px;height:66px;border-radius:10px;overflow:hidden;position:relative;background:var(--noir3);border:1px solid #222;}
 .up-thumb img,.up-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
 .up-thumb-x{position:absolute;top:2px;right:2px;width:19px;height:19px;border-radius:50%;background:rgba(255,68,68,.92);color:#fff;border:none;font-size:.62rem;cursor:pointer;line-height:1;padding:0;}
-.close-btn{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.65);border:1px solid #333;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;font-size:.9rem;border:none;}
+.back-btn{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);color:#fff;height:36px;padding:0 14px 0 10px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:5px;z-index:10;font-size:.8rem;font-weight:600;border:none;font-family:inherit;}
+.back-btn:active{opacity:.7;}
+.media-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:9;pointer-events:none;}
+.media-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .2s;}
+.media-dot.on{background:var(--g1);width:18px;border-radius:3px;}
 .psheet-body{padding:22px 20px 40px;}
 .psheet-name{font-size:1.5rem;font-weight:900;margin-bottom:6px;}
 .psheet-desc{font-size:.84rem;color:var(--gris);margin-bottom:22px;line-height:1.6;}
@@ -434,7 +438,8 @@ input[type=color]{width:44px;height:44px;border:none;border-radius:10px;cursor:p
 <div class="psheet">
 <div class="psheet-media" id="ps-media">
 <div class="psheet-media-ov"></div>
-<button class="close-btn" onclick="closeOv('prod-ov')">✕</button>
+<button class="back-btn" onclick="closeOv('prod-ov')">‹ Retour</button>
+<div class="media-dots" id="ps-dots"></div>
 </div>
 <div class="psheet-thumbs" id="ps-thumbs"></div>
 <div class="psheet-body">
@@ -662,7 +667,35 @@ em.textContent=D.products[curPIdx]?.emoji||'🟢';
 med.insertBefore(em,med.firstChild);
 }
 document.querySelectorAll('#ps-thumbs .pthumb').forEach((t,n)=>t.classList.toggle('sel',n===i));
+document.querySelectorAll('#ps-dots .media-dot').forEach((d,n)=>d.classList.toggle('on',n===i));
 }
+
+/* Glissement horizontal pour passer d'un média à l'autre */
+function slideMedia(dir){
+if(curMediaList.length<2)return;
+let n=curMediaIdx+dir;
+if(n<0)n=curMediaList.length-1;
+if(n>=curMediaList.length)n=0;
+showMedia(n);
+if(tg?.HapticFeedback)tg.HapticFeedback.selectionChanged();
+}
+
+(function initSwipe(){
+const med=document.getElementById('ps-media');
+if(!med)return;
+let x0=null,y0=null;
+med.addEventListener('touchstart',e=>{
+if(e.touches.length!==1){x0=null;return;}
+x0=e.touches[0].clientX;y0=e.touches[0].clientY;
+},{passive:true});
+med.addEventListener('touchend',e=>{
+if(x0===null)return;
+const t=e.changedTouches[0];
+const dx=t.clientX-x0,dy=t.clientY-y0;
+x0=null;
+if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5)slideMedia(dx<0?1:-1);
+},{passive:true});
+})();
 
 function openSheet(idx){
 const p=D.products[idx];curPIdx=idx;selPrice=null;prodQty=1;
@@ -675,6 +708,8 @@ th.innerHTML=curMediaList.map((m,i)=>m.type==='video'
 ?`<div class="pthumb" onclick="showMedia(${i})"><video src="${m.url}" muted playsinline preload="metadata"></video><span class="pthumb-play">▶</span></div>`
 :`<div class="pthumb" onclick="showMedia(${i})"><img src="${m.url}" alt=""/></div>`).join('');
 }else{th.style.display='none';th.innerHTML='';}
+const dots=document.getElementById('ps-dots');
+dots.innerHTML=curMediaList.length>1?curMediaList.map(()=>'<span class="media-dot"></span>').join(''):'';
 showMedia(0);
 document.getElementById('ps-name').textContent=p.name;
 document.getElementById('ps-desc').textContent=p.desc||'';
